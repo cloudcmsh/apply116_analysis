@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="比較 116 與 115 學年度大學申請入學校系學測科目參採情形。">
   <title>116／115 申請入學參採科目比較</title>
-  <link rel="stylesheet" href="styles.css?v=20261102b">
+  <link rel="stylesheet" href="styles.css?v=20261102e">
   <script src="data/programs.js" defer></script>
-  <script src="app.js?v=20261102b" defer></script>
+  <script src="app.js?v=20261102e" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -75,6 +75,11 @@
     <p class="standards-help">115 最低通過分數來自官方篩選標準原表；檢定標準與篩選倍率由圖片辨識整理。學測成績採計方式與學測占甄選總成績比例來自 115 年校系分則。116 年目前留白，日後填入且與 115 年不同的數值會以紅字標示。若有疑義，請核對官方原始資料。</p>
     <div id="standards-content"></div>
     <div class="standards-dialog-foot"><div class="standard-source-links"><a id="standards-source" target="_blank" rel="noopener noreferrer">115 篩選標準原表 ↗</a><a id="school-detail-source" target="_blank" rel="noopener noreferrer">115 校系分則 ↗</a></div><button id="standards-done" class="outline-button" type="button">關閉</button></div>
+  </dialog>
+  <dialog id="pdf-dialog" class="pdf-dialog" aria-labelledby="pdf-title">
+    <div class="pdf-dialog-head"><div><h2 id="pdf-title"></h2><p id="pdf-page"></p></div><button id="pdf-close" class="pdf-close" type="button" aria-label="關閉 PDF 並返回查詢">關閉 ×</button></div>
+    <iframe id="pdf-frame" title="116 原始 PDF"></iframe>
+    <div class="pdf-dialog-foot"><a id="pdf-download" download>下載 PDF</a><button id="pdf-done" class="outline-button" type="button">關閉並返回查詢</button></div>
   </dialog>
   <footer><div class="wrap footer-inner"><span>116 申請入學資料觀察室</span><span>資料來源：大學甄選入學委員會 · 整理日期 2026.10.30</span></div></footer>
 </body>

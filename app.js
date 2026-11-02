@@ -50,7 +50,7 @@
     const change = p.change === 'changed' ? '<span class="change-pill changed">科目有變動</span>' : p.change === 'unmatched' ? '<span class="change-pill unmatched-pill">待核對</span>' : '';
     const hasStandards = Boolean(p.previous);
     const standardButton = `<button class="standard-button" type="button" data-program-code="${p.code}" ${hasStandards ? '' : 'disabled title="沒有可對應的 115 年篩選標準"'}>115 篩選標準</button>`;
-    return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-code">${p.code}</span>${change}${standardButton}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" target="_blank" rel="noopener noreferrer" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
+    return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-code">${p.code}</span>${change}${standardButton}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" data-pdf-program-code="${p.code}" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
   }
 
   function criteriaTable(title, labels, previousCells, currentCells) {
@@ -113,7 +113,7 @@
     $('standards-content').innerHTML = rows.map((row, index) => {
       const labels = standardData.layouts[row.layout];
       const details = labels.identity.slice(1).map((label, i) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(row.identity[i + 1].text)}</dd></div>`).join('');
-      return `<article class="standard-record">${rows.length > 1 ? `<h3>原表第 ${index + 1} 列</h3>` : ''}<dl class="standard-details">${details}</dl><div class="standard-grid">${passTable(labels.passes, row.passes)}${criteriaTable('檢定標準', labels.checks, row.checks, row.checks116)}${criteriaTable('篩選倍率', labels.ratios, row.ratios, row.ratios116)}</div><div class="score-grid">${scoreTable('學測成績採計方式', schoolDetail && schoolDetail.scoreWeights)}${scoreTable('學測佔甄選總成績比例', schoolDetail && schoolDetail.gsatPercentage)}</div><div class="standard-extra"><strong>115 同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div></article>`;
+      return `<article class="standard-record">${rows.length > 1 ? `<h3>原表第 ${index + 1} 列</h3>` : ''}<dl class="standard-details">${details}</dl><div class="standard-grid">${passTable(labels.passes, row.passes)}<section class="first-stage" aria-labelledby="first-stage-${program.code}-${index}"><h3 id="first-stage-${program.code}-${index}">第一階段</h3><div class="criteria-grid">${criteriaTable('檢定標準', labels.checks, row.checks, row.checks116)}${criteriaTable('篩選倍率', labels.ratios, row.ratios, row.ratios116)}</div></section></div><section class="second-stage" aria-labelledby="second-stage-${program.code}-${index}"><h3 id="second-stage-${program.code}-${index}">第二階段</h3><div class="score-grid">${scoreTable('學測成績採計方式', schoolDetail && schoolDetail.scoreWeights)}${scoreTable('學測佔甄選總成績比例', schoolDetail && schoolDetail.gsatPercentage)}</div></section><div class="standard-extra"><strong>115 同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div></article>`;
     }).join('');
     $('standards-source').href = `${standardSourceBase}${program.schoolCode}.htm`;
     showStandardsDialog();
@@ -129,6 +129,32 @@
     const dialog = $('standards-dialog');
     if (typeof dialog.close === 'function') dialog.close();
     else { dialog.removeAttribute('open'); document.body.classList.remove('dialog-open'); }
+  }
+
+  let pdfReturnFocus;
+  function openPdf(link) {
+    const program = programByCode.get(link.dataset.pdfProgramCode);
+    if (!program) return;
+    pdfReturnFocus = link;
+    $('pdf-title').textContent = `${program.school} ${program.name}`;
+    $('pdf-page').textContent = `116 原始 PDF · 第 ${program.page} 頁`;
+    $('pdf-frame').title = `${program.school} ${program.name} 116 原始 PDF`;
+    $('pdf-frame').src = link.getAttribute('href');
+    $('pdf-download').href = `data/${program.schoolCode}.pdf`;
+    $('pdf-download').download = `116_${program.schoolCode}.pdf`;
+    const dialog = $('pdf-dialog');
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else { dialog.setAttribute('open', ''); document.body.classList.add('dialog-open'); }
+    document.body.classList.add('pdf-open');
+  }
+
+  function closePdf() {
+    const dialog = $('pdf-dialog');
+    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+    else dialog.removeAttribute('open');
+    $('pdf-frame').removeAttribute('src');
+    document.body.classList.remove('pdf-open', 'dialog-open');
+    if (pdfReturnFocus && pdfReturnFocus.isConnected) pdfReturnFocus.focus();
   }
 
   function renderChart(id, labels, counts) {
@@ -168,6 +194,12 @@
   $('sort').addEventListener('change', event => { state.sort = event.target.value; changed(); });
   $('show-more').addEventListener('click', () => { state.limit += 50; render(); });
   $('result-rows').addEventListener('click', event => {
+    const pdfLink = event.target.closest('a[data-pdf-program-code]');
+    if (pdfLink) {
+      event.preventDefault();
+      openPdf(pdfLink);
+      return;
+    }
     const button = event.target.closest('button[data-program-code]');
     if (!button || button.disabled) return;
     const program = programByCode.get(button.dataset.programCode);
@@ -183,6 +215,9 @@
   });
   $('standards-close').addEventListener('click', closeStandards);
   $('standards-done').addEventListener('click', closeStandards);
+  $('pdf-close').addEventListener('click', closePdf);
+  $('pdf-done').addEventListener('click', closePdf);
+  $('pdf-dialog').addEventListener('cancel', event => { event.preventDefault(); closePdf(); });
   $('reset-filters').addEventListener('click', () => {
     Object.assign(state, { query: '', school: '', category: '', comparison: '', selected: new Set(), mode: 'all', noSubject: false, sort: 'code', limit: 50 });
     $('search').value = ''; $('school').value = ''; $('category').value = ''; $('comparison').value = ''; $('sort').value = 'code'; $('no-subject').checked = false;
