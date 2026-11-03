@@ -50,13 +50,14 @@
 
   function rowHtml(p) {
     const current = subjectTags(p.subjects, p.added, 'added');
-    const previous = p.previous ? `<div class="tags">${subjectTags(p.previous.subjects, p.removed, 'removed')}</div>${p.previous.code !== p.code ? `<span class="previous-code">115 代碼 ${p.previous.code}</span>` : ''}` : '<span class="unmatched">無同名紀錄</span>';
+    const previous = p.previous ? `<div class="tags">${subjectTags(p.previous.subjects, p.removed, 'removed')}</div>` : '<span class="unmatched">無同名紀錄</span>';
+    const previousCode = p.previous && p.previous.code !== p.code ? `<span class="previous-code">115 代碼 ${p.previous.code}</span>` : '';
     const change = p.change === 'changed' ? '<span class="change-pill changed">科目有變動</span>' : p.change === 'unmatched' ? '<span class="change-pill unmatched-pill">待核對</span>' : '';
     const hasStandards = Boolean(p.previous);
     const standardButton = `<button class="standard-button" type="button" data-program-code="${p.code}" ${hasStandards ? '' : 'disabled title="沒有可對應的 115 年篩選標準"'}>115 篩選標準</button>`;
     const checked = compareCodes.has(p.code);
     const comparePick = `<label class="compare-pick"><input type="checkbox" data-compare-code="${p.code}" aria-label="加入比較：${escapeHtml(p.school)} ${escapeHtml(p.name)}" ${checked ? 'checked' : ''} ${!checked && compareCodes.size >= maxCompare ? 'disabled' : ''}><span>加入比較</span></label>`;
-    return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-code">${p.code}</span>${change}${standardButton}${comparePick}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" data-pdf-program-code="${p.code}" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
+    return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-codes"><span class="program-code">${p.code}</span>${previousCode}</span>${change}${standardButton}${comparePick}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" data-pdf-program-code="${p.code}" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
   }
 
   function criteriaTable(title, labels, previousCells, currentCells) {
@@ -89,7 +90,7 @@
     if (window.STANDARDS_115) return Promise.resolve();
     if (!standardsPromise) standardsPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'data/standards.js?v=20261102a';
+      script.src = 'data/standards.js?v=20261103a';
       script.onload = () => {
         standardData = window.STANDARDS_115 || { layouts: {}, programs: {} };
         standards = standardData.programs || {};
@@ -187,21 +188,23 @@
         const cell = (row[field] || [])[index];
         if (!cell || cell.text === '—') return '';
         return `${label}：${cell.text}${cell.confidence < .7 ? '（待核對）' : ''}`;
-      }).filter(Boolean).join('、');
+      }).filter(Boolean).join(field === 'passes' ? '\n' : '、');
       return `${rows.length > 1 ? `原表第 ${rowIndex + 1} 列：` : ''}${entries || '—'}`;
-    }).join('；');
+    }).join(field === 'passes' ? '\n' : '；');
   }
 
   function renderCompareTable() {
     const programs = [...compareCodes].map(code => programByCode.get(code)).filter(Boolean);
-    const row = (label, values, html = false) => `<tr><th scope="row">${label}</th>${values.map(value => `<td>${html ? value : escapeHtml(value)}</td>`).join('')}</tr>`;
+    const row = (label, values, html = false, className = '') => `<tr${className ? ` class="${className}"` : ''}><th scope="row">${label}</th>${values.map(value => `<td>${html ? value : escapeHtml(value)}</td>`).join('')}</tr>`;
     const values = fn => programs.map(fn);
-    const schoolDetail = program => program.previous && (window.schoolDetails115 || {})[program.previous.code];
     const subjectCell = (program, previous) => previous && !program.previous ? '無同名紀錄' : `<div class="tags">${subjectTags(previous ? program.previous.subjects : program.subjects, previous ? program.removed : program.added, previous ? 'removed' : 'added')}</div>`;
     const changeLabel = program => program.change === 'changed' ? '參採科目有變動' : program.change === 'same' ? '參採科目相同' : '115 無同名紀錄';
     const scroll = $('compare-scroll');
     const scrollLeft = scroll.scrollLeft;
-    $('compare-table').innerHTML = `<thead><tr><th scope="col">比較項目</th>${programs.map(program => `<th scope="col"><span class="compare-school">${escapeHtml(program.school)}</span><span class="compare-name">${escapeHtml(program.name)}</span><span class="compare-code">${program.code}</span><button type="button" data-compare-remove="${program.code}" aria-label="移除比較：${escapeHtml(program.school)} ${escapeHtml(program.name)}">移除</button></th>`).join('')}</tr></thead><tbody>${row('學校', values(program => program.school))}${row('116 校系代碼', values(program => program.code))}${row('招生類別', values(program => program.category))}${row('116 參採科目', values(program => subjectCell(program, false)), true)}${row('115 校系代碼', values(program => program.previous ? program.previous.code : '無同名紀錄'))}${row('115 參採科目', values(program => subjectCell(program, true)), true)}${row('兩年科目比較', values(changeLabel))}${row('115 最低通過分數', values(program => compareStandards(program, 'passes')))}${row('115 檢定標準', values(program => compareStandards(program, 'checks')))}${row('115 篩選倍率', values(program => compareStandards(program, 'ratios')))}${row('115 學測成績採計方式', values(program => schoolDetail(program)?.scoreWeights || (program.previous ? '—' : '無同名紀錄')))}${row('115 學測佔甄選總成績比例', values(program => schoolDetail(program)?.gsatPercentage || (program.previous ? '—' : '無同名紀錄')))}</tbody>`;
+    const dialog = $('compare-dialog');
+    dialog.style.setProperty('--compare-table-width', `${140 + 196 * programs.length}px`);
+    dialog.style.setProperty('--compare-mobile-table-width', `${115 + 190 * programs.length}px`);
+    $('compare-table').innerHTML = `<thead><tr><th scope="col">比較項目</th>${programs.map(program => `<th scope="col"><span class="compare-school">${escapeHtml(program.school)}</span><span class="compare-name">${escapeHtml(program.name)}</span><button type="button" data-compare-remove="${program.code}" aria-label="移除比較：${escapeHtml(program.school)} ${escapeHtml(program.name)}">移除</button></th>`).join('')}</tr></thead><tbody>${row('學校', values(program => program.school))}${row('116 參採科目', values(program => subjectCell(program, false)), true)}${row('115 參採科目', values(program => subjectCell(program, true)), true)}${row('兩年科目比較', values(changeLabel))}${row('115 最低通過分數', values(program => compareStandards(program, 'passes')), false, 'compare-pass-row')}${row('115 檢定標準', values(program => compareStandards(program, 'checks')))}${row('115 篩選倍率', values(program => compareStandards(program, 'ratios')))}</tbody>`;
     scroll.scrollLeft = scrollLeft;
     $('compare-description').textContent = `已選 ${programs.length} 個校系，最多可選 ${maxCompare} 個`;
   }
@@ -264,9 +267,9 @@
     const button = $('compare-open');
     button.disabled = true;
     button.textContent = '載入中…';
-    Promise.allSettled([ensureStandards(), ensureSchoolDetails()]).then(results => {
+    Promise.allSettled([ensureStandards()]).then(results => {
       if (compareCodes.size < 2) return;
-      $('compare-help').textContent = results.some(result => result.status === 'rejected') ? '部分 115 年詳細資料暫時無法載入；仍可比較兩年的參採科目。' : '左右捲動可查看所有已選校系。115 年最低分數、檢定與倍率由官方篩選標準圖片辨識整理；116 年目前只有參採科目資料。';
+      $('compare-help').textContent = results.some(result => result.status === 'rejected') ? '115 年篩選標準暫時無法載入；仍可比較兩年的參採科目。' : '左右捲動可查看所有已選校系。115 年檢定與倍率已依官方校系分則核對，最低通過分數依官方篩選標準原圖核對；116 年目前只有參採科目資料。';
       renderCompareTable();
       const dialog = $('compare-dialog');
       if (typeof dialog.showModal === 'function') dialog.showModal();
