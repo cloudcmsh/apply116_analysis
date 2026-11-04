@@ -3,46 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="116 學年度申請入學分則查詢入口，切換大學申請入學與科技校院四技申請入學資料。">
-  <title>116 申請入學校系查詢入口</title>
+  <meta name="description" content="116 學年度申請入學校系分則查詢入口，選擇一般大學或科技校院。">
+  <title>116 申請入學校系分則查詢</title>
   <link rel="stylesheet" href="portal.css">
 </head>
 <body class="portal-home">
   <header class="portal-header">
     <div class="portal-container portal-header-inner">
-      <a class="portal-brand" href="./" aria-label="116 申請入學查詢入口首頁"><span class="portal-brand-mark">116</span><span>申請入學查詢入口</span></a>
-      <span class="portal-header-note">116 學年度 · 校系資料整合</span>
+      <div class="portal-brand"><span class="portal-brand-mark">116</span><span>申請入學查詢入口</span></div>
     </div>
   </header>
-  <main>
-    <section class="portal-hero portal-container" aria-labelledby="portal-title">
-      <div class="portal-eyebrow"><span></span> 兩種申請入學管道，一個查詢入口</div>
-      <h1 id="portal-title">找到適合你的<br><em>校系查詢工具</em></h1>
-      <p>依申請管道選擇資料站。兩站都可查詢 116 學年度校系的學測參採科目，並對照 115 學年度資料。</p>
-      <a class="portal-skip" href="#choose">選擇查詢網站 <span aria-hidden="true">↓</span></a>
-      <div class="portal-orbit" aria-hidden="true"><span>大學</span><span>116</span><span>四技</span></div>
-    </section>
-    <section class="portal-choice" id="choose" aria-labelledby="choice-title">
-      <div class="portal-container">
-        <div class="portal-section-heading"><div><span class="portal-kicker">CHOOSE YOUR PATH</span><h2 id="choice-title">選擇查詢網站</h2></div><p>依想查的招生管道進入，頁面上方可隨時切換。</p></div>
-        <div class="portal-card-grid">
-          <article class="portal-card portal-card-university">
-            <div class="portal-card-top"><span class="portal-card-index">01 / UNIVERSITY</span><span class="portal-card-icon" aria-hidden="true">大</span></div>
-            <div><span class="portal-card-type">大學申請入學</span><h3>一般大學<br>校系分則查詢</h3><p>查詢 116 學年度大學申請入學校系、學測參採科目與歷年分則資訊。</p></div>
-            <ul aria-label="網站功能"><li>校系與科目篩選</li><li>115／116 年比較</li><li>校系並排比較</li></ul>
-            <div class="portal-card-bottom"><span>116 年 2,240 筆校系</span><a href="university/index.html" aria-label="進入一般大學校系分則查詢">進入查詢 <span aria-hidden="true">↗</span></a></div>
-          </article>
-          <article class="portal-card portal-card-tech">
-            <div class="portal-card-top"><span class="portal-card-index">02 / FOUR-YEAR TECH</span><span class="portal-card-icon" aria-hidden="true">技</span></div>
-            <div><span class="portal-card-type">科技校院四技申請入學</span><h3>科技校院<br>校系分則查詢</h3><p>查詢 116 學年度四技申請入學校系、學測參採科目與 115 年最低篩選標準。</p></div>
-            <ul aria-label="網站功能"><li>校系與科目篩選</li><li>115／116 年比較</li><li>115 年最低標準</li></ul>
-            <div class="portal-card-bottom"><span>116 年 592 筆校系與組別</span><a href="tech/index.html" aria-label="進入科技校院四技校系分則查詢">進入查詢 <span aria-hidden="true">↗</span></a></div>
-          </article>
-        </div>
-        <p class="portal-data-note">資料僅供查詢與比較；招生條件請以各招生單位當年度正式簡章及公告為準。</p>
-      </div>
-    </section>
+  <main class="portal-main portal-container">
+    <div class="portal-intro">
+      <p class="portal-eyebrow">116 學年度</p>
+      <h1>校系分則查詢</h1>
+      <p>請選擇要查詢的申請入學管道</p>
+    </div>
+    <div class="portal-actions" aria-label="選擇查詢網站">
+      <a class="portal-action portal-action-university" href="university/index.html">
+        <span class="portal-action-icon" aria-hidden="true">大</span>
+        <span class="portal-action-label">一般大學校系分則查詢</span>
+        <span class="portal-action-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="portal-action portal-action-tech" href="tech/index.html">
+        <span class="portal-action-icon" aria-hidden="true">技</span>
+        <span class="portal-action-label">科技校院校系分則查詢</span>
+        <span class="portal-action-arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
+    <p class="portal-data-note">招生條件請以各招生單位當年度正式簡章及公告為準。</p>
   </main>
-  <footer class="portal-footer"><div class="portal-container"><span>116 申請入學查詢入口</span><span>大學申請入學 · 科技校院四技申請入學</span></div></footer>
 </body>
 </html>
