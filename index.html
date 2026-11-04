@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="比較 116 與 115 學年度大學申請入學校系學測科目參採情形。">
   <title>116／115 申請入學參採科目比較</title>
-  <link rel="stylesheet" href="styles.css?v=20261103c">
-  <script src="data/programs.js" defer></script>
-  <script src="app.js?v=20261103c" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20261103f">
+  <script src="data/programs.js?v=20261103f" defer></script>
+  <script src="data/telc_116.js?v=20261103a" defer></script>
+  <script src="app.js?v=20261103h" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -32,7 +33,7 @@
 
     <section class="notice wrap" role="note">
       <span class="notice-icon">i</span>
-      <p><strong>資料提醒</strong> 兩年資料均為「參採科目一覽表」，涵蓋檢定、倍率篩選與採計，並非完整校系分則。116 年實際招生條件以正式簡章公告為準。</p>
+      <p><strong>資料提醒</strong> 參採科目以兩年官方一覽表比較；115、116 年檢定標準、篩選倍率與第二階段學測採計資料另依官方校系分則整理。115 最低通過分數來自官方篩選標準原表。</p>
       <a href="https://www.cac.edu.tw/apply116/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">查看官方原頁 ↗</a>
     </section>
 
@@ -44,12 +45,20 @@
           <div class="search-box"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="例：心理、資訊、001012" autocomplete="off"></div>
           <label class="field-label" for="school">學校</label>
           <select id="school"><option value="">所有學校</option></select>
+          <label class="field-label" for="region">學校所在區域</label>
+          <select id="region"><option value="">所有區域</option></select>
+          <p class="group-note">區域依 <a href="https://www.cac.edu.tw/apply116/system/ColQry_116ApplyxForStudent_F75reOza/school_search.htm" target="_blank" rel="noopener noreferrer">116 年官方學校查詢</a>；可與公立／私立及其他條件一起篩選。</p>
+          <label class="field-label" for="academic-group">學群</label>
+          <select id="academic-group"><option value="">所有學群</option></select>
+          <p class="group-note">依 <a href="https://www.cac.edu.tw/apply116/system/ColQry_116ApplyxForStudent_F75reOza/findgsdgroup.htm" target="_blank" rel="noopener noreferrer">116 年官方學群分類</a>逐一核對校系代碼；無法對應者列為「未分類」。</p>
           <label class="field-label" for="category">116 招生類別</label>
           <select id="category"><option value="">所有類別</option></select>
           <label class="field-label" for="comparison">年度比較</label>
           <select id="comparison"><option value="">全部校系</option><option value="changed">參採科目有變動</option><option value="same">參採科目無變動</option><option value="unmatched">115 無同名紀錄</option></select>
           <fieldset class="subject-fieldset"><legend class="field-label">116 參採科目</legend><div id="subject-options" class="subject-options"></div></fieldset>
           <fieldset class="mode-fieldset"><legend class="field-label">科目篩選方式</legend><label><input type="radio" name="subject-mode" value="all" checked> 包含全部已選科目</label><label><input type="radio" name="subject-mode" value="any"> 包含任一已選科目</label><label><input type="radio" name="subject-mode" value="exact"> 恰好是已選科目</label></fieldset>
+          <button id="english-listening-filter" class="listening-filter" type="button" aria-pressed="false">僅顯示採計英聽的校系 <span id="english-listening-count">—</span></button>
+          <p class="listening-note">依<a href="https://www.cac.edu.tw/apply116/system/ColQry_116ApplyxForStudent_F75reOza/Telc.htm" target="_blank" rel="noopener noreferrer">116 年官方英聽檢定名單</a>，可與其他條件交叉篩選。</p>
           <label class="no-subject"><input id="no-subject" type="checkbox"> 僅顯示 116 不參採學測科目</label>
           <a class="mobile-results-link" href="#results">查看查詢結果 ↓</a>
         </aside>
@@ -68,20 +77,20 @@
       <div class="insight-grid"><article class="chart-card"><div class="card-head"><div><h3>116 各科目參採校系數</h3><p>一個校系可能同時參採多科，長條數值不能相加。</p></div><span class="card-symbol">01</span></div><div id="subject-chart" class="bar-chart"></div></article><article class="chart-card"><div class="card-head"><div><h3>116 參採科目數分布</h3><p>每個校系計入一個科目數區間。</p></div><span class="card-symbol">02</span></div><div id="count-chart" class="bar-chart count-chart"></div></article></div>
     </section>
 
-    <section class="about wrap" id="about"><div><span class="kicker">SOURCE & METHOD</span><h2>資料與計算方式</h2></div><div class="about-copy"><p>資料來自大學甄選入學委員會的 116 與 115 學年度「申請入學」招生校系參採學測科目一覽表。本站以 116 年 2,240 筆校系為主，依學校代碼與正規化後的校系名稱尋找 115 年同名紀錄。校系代碼在兩年間可能改變，因此不以六碼校系代碼單獨配對。</p><p>「115 無同名紀錄」表示無法可靠配對，不能直接解讀為新設校系；更名或改組也可能造成此情況。變動標示僅比較兩年參採科目集合。「參採」包含檢定、倍率篩選及採計，本站不區分具體用途。數學 A 與數學 B 分別計數。115 年篩選標準整理成文字表格；校系名稱、招生名額、檢定與倍率已對照官方校系分則，實際通過最低級分依官方篩選標準原圖核對。同一校系如有多列會全部顯示。若有疑義，請以連結中的官方原始資料為準。116 原始 PDF 可從表格開啟；正式招生條件仍以官方簡章為準。</p><div class="source-links"><a href="https://www.cac.edu.tw/apply116/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">116 官方一覽表 ↗</a><a href="https://www.cac.edu.tw/apply115/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">115 官方一覽表 ↗</a><a href="https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/collegeList.htm" target="_blank" rel="noopener noreferrer">115 篩選標準原頁 ↗</a><a href="data/programs.csv" download>下載比較資料 CSV ↓</a></div></div></section>
+    <section class="about wrap" id="about"><div><span class="kicker">SOURCE & METHOD</span><h2>資料與計算方式</h2></div><div class="about-copy"><p>參採科目來自大學甄選入學委員會的 116 與 115 學年度「申請入學」一覽表。本站以 116 年 2,240 筆校系為主，依學校代碼與正規化後的校系名稱尋找 115 年同名紀錄。校系代碼在兩年間可能改變，因此不以六碼校系代碼單獨配對。</p><p>「115 無同名紀錄」表示無法可靠配對，不能直接解讀為新設校系；更名或改組也可能造成此情況。科目變動標示僅比較兩年參採科目集合，數學 A 與數學 B 分別計數。兩年的檢定、倍率與第二階段學測成績採計方式和占比，依各年官方校系分則整理。115 最低通過分數依官方篩選標準原圖核對，同一校系如有多列會全部顯示。116 最低通過分數尚未產生。若有疑義，請以連結中的官方原始資料為準。</p><div class="source-links"><a href="https://www.cac.edu.tw/apply116/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">116 官方一覽表 ↗</a><a href="https://www.cac.edu.tw/apply115/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">115 官方一覽表 ↗</a><a href="https://www.cac.edu.tw/apply116/system/ColQry_116ApplyxForStudent_F75reOza/school_search.htm" target="_blank" rel="noopener noreferrer">116 校系分則 ↗</a><a href="https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/collegeList.htm" target="_blank" rel="noopener noreferrer">115 篩選標準原頁 ↗</a><a href="data/programs.csv" download>下載比較資料 CSV ↓</a></div></div></section>
   </main>
   <div id="compare-tray" class="compare-tray" hidden aria-live="polite"><div><strong id="compare-count">已選 0 / 10 個校系</strong><span id="compare-hint">再選 1 個校系即可比較</span></div><div class="compare-tray-actions"><button id="compare-clear" type="button">清除已選</button><button id="compare-open" type="button" disabled>開始比較</button></div></div>
   <dialog id="compare-dialog" class="compare-dialog" aria-labelledby="compare-title">
     <div class="compare-dialog-head"><div><h2 id="compare-title">校系比較</h2><p id="compare-description"></p></div><button id="compare-close" type="button" aria-label="關閉校系比較">關閉 ×</button></div>
-    <p id="compare-help" class="compare-help">左右捲動可查看所有已選校系。115 年檢定與倍率已依官方校系分則核對，最低通過分數依官方篩選標準原圖核對；116 年目前只有參採科目資料。</p>
+    <p id="compare-help" class="compare-help">左右捲動可查看所有已選校系。115、116 年檢定與倍率均依官方校系分則整理；115 最低通過分數依官方篩選標準原圖核對。</p>
     <div id="compare-scroll" class="compare-scroll"><table id="compare-table"></table></div>
     <div class="compare-dialog-foot"><button id="compare-done" type="button">關閉比較</button></div>
   </dialog>
   <dialog id="standards-dialog" class="standards-dialog" aria-labelledby="standards-title">
-    <div class="standards-dialog-head"><div><span class="kicker">115 SCREENING STANDARD</span><h2 id="standards-title"></h2><p id="standards-description"></p></div><button id="standards-close" class="standards-close" type="button" aria-label="關閉篩選標準">×</button></div>
-    <p class="standards-help">115 最低通過分數已重新核對官方原圖，包含多行科目組合；檢定標準與篩選倍率逐一對照 115 年官方校系分則。學測成績採計方式與學測占甄選總成績比例也來自官方分則。116 年目前留白，日後填入且與 115 年不同的數值會以紅字標示。若有疑義，請核對官方原始資料。</p>
+    <div class="standards-dialog-head"><div><span class="kicker">115 / 116 SCREENING STANDARD</span><h2 id="standards-title"></h2><p id="standards-description"></p></div><button id="standards-close" class="standards-close" type="button" aria-label="關閉篩選標準">×</button></div>
+    <p class="standards-help">115 最低通過分數依官方篩選標準原圖核對；兩年的檢定、倍率及第二階段學測採計方式與占比依各年官方校系分則整理。116 年與 115 年不同的數值以紅字標示。116 年最低通過分數尚未產生。若有疑義，請核對官方原始資料。</p>
     <div id="standards-content"></div>
-    <div class="standards-dialog-foot"><div class="standard-source-links"><a id="standards-source" target="_blank" rel="noopener noreferrer">115 篩選標準原表 ↗</a><a id="school-detail-source" target="_blank" rel="noopener noreferrer">115 校系分則 ↗</a></div><button id="standards-done" class="outline-button" type="button">關閉</button></div>
+    <div class="standards-dialog-foot"><div class="standard-source-links"><a id="standards-source" target="_blank" rel="noopener noreferrer">115 篩選標準原表 ↗</a><a id="school-detail-source" target="_blank" rel="noopener noreferrer">115 校系分則 ↗</a><a id="school-detail-source-116" target="_blank" rel="noopener noreferrer">116 校系分則 ↗</a></div><button id="standards-done" class="outline-button" type="button">關閉</button></div>
   </dialog>
   <dialog id="pdf-dialog" class="pdf-dialog" aria-labelledby="pdf-title">
     <div class="pdf-dialog-head"><div><h2 id="pdf-title"></h2><p id="pdf-page"></p></div><button id="pdf-close" class="pdf-close" type="button" aria-label="關閉 PDF 並返回查詢">關閉 ×</button></div>
