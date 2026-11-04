@@ -71,7 +71,7 @@
 
   function criteriaTable(title, labels, previousCells, currentValues, hasPrevious) {
     const allLabels = [...new Set([...labels, ...Object.keys(currentValues || {})])];
-    return `<section class="standard-section"><h4>${title}</h4><table class="criteria-table compare-table"><thead><tr><th scope="col">科目／項目</th><th scope="col">115 年</th><th scope="col">116 年</th></tr></thead><tbody>${allLabels.map(label => { const oldIndex = labels.indexOf(label); const previous = oldIndex >= 0 && previousCells[oldIndex] ? previousCells[oldIndex] : { text: '—', confidence: 1 }; const currentText = currentValues && Object.prototype.hasOwnProperty.call(currentValues, label) ? currentValues[label] : '—'; const changed = hasPrevious && currentText !== previous.text; const uncertain = previous.confidence < .7 && previous.text !== '—'; return `<tr><th scope="row">${escapeHtml(label)}</th><td${uncertain ? ' class="ocr-uncertain" title="圖片辨識結果待核對，請查看官方原表"' : ''}>${escapeHtml(previous.text)}${uncertain ? '<sup aria-label="待核對">?</sup>' : ''}</td><td class="current-year${changed ? ' changed-year' : ''}">${escapeHtml(currentText)}</td></tr>`; }).join('')}</tbody></table></section>`;
+    return `<section class="standard-section"><h4>${title}</h4><table class="criteria-table compare-table"><thead><tr><th scope="col">科目／項目</th><th scope="col">116 年</th><th scope="col">115 年</th></tr></thead><tbody>${allLabels.map(label => { const oldIndex = labels.indexOf(label); const previous = oldIndex >= 0 && previousCells[oldIndex] ? previousCells[oldIndex] : { text: '—', confidence: 1 }; const currentText = currentValues && Object.prototype.hasOwnProperty.call(currentValues, label) ? currentValues[label] : '—'; const changed = hasPrevious && currentText !== previous.text; const uncertain = previous.confidence < .7 && previous.text !== '—'; return `<tr><th scope="row">${escapeHtml(label)}</th><td class="current-year${changed ? ' changed-year' : ''}">${escapeHtml(currentText)}</td><td${uncertain ? ' class="ocr-uncertain" title="圖片辨識結果待核對，請查看官方原表"' : ''}>${escapeHtml(previous.text)}${uncertain ? '<sup aria-label="待核對">?</sup>' : ''}</td></tr>`; }).join('')}</tbody></table></section>`;
   }
 
   function passTable(labels, cells) {
@@ -82,7 +82,7 @@
     const previousText = String(previousValue || '—').trim();
     const currentText = String(currentValue || '—').trim();
     const changed = hasPrevious && currentText !== previousText;
-    return `<section class="standard-section score-section"><h4>${title}</h4><table class="criteria-table score-table"><thead><tr><th scope="col">115 年</th><th scope="col">116 年</th></tr></thead><tbody><tr><td>${escapeHtml(previousText)}</td><td class="current-year${changed ? ' changed-year' : ''}">${escapeHtml(currentText)}</td></tr></tbody></table></section>`;
+    return `<section class="standard-section score-section"><h4>${title}</h4><table class="criteria-table score-table"><thead><tr><th scope="col">116 年</th><th scope="col">115 年</th></tr></thead><tbody><tr><td class="current-year${changed ? ' changed-year' : ''}">${escapeHtml(currentText)}</td><td>${escapeHtml(previousText)}</td></tr></tbody></table></section>`;
   }
 
   function ensureSchoolDetails116() {
