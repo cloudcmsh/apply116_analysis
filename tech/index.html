@@ -44,7 +44,7 @@
           <label class="field-label" for="comparison">年度比較</label><select id="comparison"><option value="">全部校系</option><option value="changed">參採科目有變動</option><option value="same">參採科目無變動</option><option value="unmatched">115 無對應紀錄</option></select>
           <fieldset class="subject-fieldset"><legend class="field-label">116 參採科目</legend><div id="subject-options" class="subject-options"></div></fieldset>
           <fieldset class="mode-fieldset"><legend class="field-label">科目篩選方式</legend><label><input type="radio" name="subject-mode" value="all" checked> 包含全部已選科目</label><label><input type="radio" name="subject-mode" value="any"> 包含任一已選科目</label><label><input type="radio" name="subject-mode" value="exact"> 恰好是已選科目</label></fieldset>
-          <div class="filter-resource"><a href="https://www.jctv.ntut.edu.tw/downloads/115/caac/115_caac_rule.pdf#page=21" target="_blank" rel="noopener noreferrer">115 簡章計分規則 ↗</a></div>
+          <div class="filter-resource"><a href="data/115_caac_rule.pdf#page=21" target="_blank" rel="noopener noreferrer">115 簡章計分規則 ↗</a></div>
           <a class="mobile-results-link" href="#results">查看查詢結果 ↓</a>
         </aside>
         <div class="results-panel" id="results">
@@ -81,6 +81,12 @@
       </section>
     </div>
     <div class="dialog-foot"><div class="dialog-links"><a id="standards-source" target="_blank" rel="noopener noreferrer">開啟最低標準 PDF ↗</a><a id="standards-detail" target="_blank" rel="noopener noreferrer">115 校系詳細簡章 ↗</a></div><button id="standards-done" class="outline-button" type="button">關閉</button></div>
+  </dialog>
+  <dialog id="document-dialog" class="document-dialog" aria-labelledby="document-title">
+    <div class="document-head"><div><h2 id="document-title"></h2><p id="document-description"></p></div><button id="document-close" type="button" aria-label="關閉檢視視窗並返回網站">關閉 ×</button></div>
+    <p id="document-help" class="document-help" hidden>若官方網站限制站內顯示，請使用下方的「在新分頁開啟 PDF」。</p>
+    <iframe id="document-frame" title="PDF 文件預覽"></iframe>
+    <div class="document-foot"><a id="document-original" data-direct-open target="_blank" rel="noopener noreferrer">在新分頁開啟 PDF ↗</a><button id="document-done" type="button">關閉並返回網站</button></div>
   </dialog>
   <footer><div class="wrap footer-inner"><span>116 四技申請入學資料觀察室</span><span>資料來源：科技校院四技申請入學公告 PDF · 整理日期 2026.11.04</span></div></footer>
 </body>

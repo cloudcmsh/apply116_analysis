@@ -39,8 +39,8 @@
     const change = p.change === 'changed' ? '<span class="change-pill changed">科目有變動</span>' : p.change === 'unmatched' ? '<span class="change-pill unmatched-pill">待核對</span>' : '';
     const old = p.previous ? tags(p.previous.subjects, [], p.removed) : '<span class="unmatched">無對應紀錄</span>';
     const score = p.standard ? `<button class="standard-button" type="button" data-id="${p.id}"><strong>${escape(p.standard.score)}</strong><small>標準與權重 ↗</small></button>` : '<span class="score-empty">—</span>';
-    const prevLink = p.previous ? `<a class="pdf-link" href="${encodeURI(p.previous.pdf)}#page=${p.previous.page}" target="_blank" rel="noopener noreferrer">115 PDF ↗</a>` : '';
-    return `<tr><td data-label="116 校系"><span class="program-name">${escape(p.name)}</span><span class="program-code">${p.schoolCode} · 第 ${Number(p.id.split('-')[1])} 筆${p.standard ? ` · 115 代碼 ${p.standard.code}` : ''}</span>${change}</td><td data-label="學校"><span class="school-name">${escape(p.school)}</span></td><td data-label="116 參採">${tags(p.subjects,p.added)}</td><td data-label="115 參採">${old}</td><td data-label="115 最低標準">${score}</td><td data-label="原始資料"><div class="pdf-links"><a class="pdf-link" href="${encodeURI(p.pdf)}#page=${p.page}" target="_blank" rel="noopener noreferrer">116 PDF ↗</a>${prevLink}</div></td></tr>`;
+    const prevLink = p.previous ? `<a class="pdf-link" href="${encodeURI(p.previous.pdf)}#page=${p.previous.page}" data-pdf-program-id="${p.id}" data-pdf-year="115" target="_blank" rel="noopener noreferrer">115 PDF ↗</a>` : '';
+    return `<tr><td data-label="116 校系"><span class="program-name">${escape(p.name)}</span><span class="program-code">${p.schoolCode} · 第 ${Number(p.id.split('-')[1])} 筆${p.standard ? ` · 115 代碼 ${p.standard.code}` : ''}</span>${change}</td><td data-label="學校"><span class="school-name">${escape(p.school)}</span></td><td data-label="116 參採">${tags(p.subjects,p.added)}</td><td data-label="115 參採">${old}</td><td data-label="115 最低標準">${score}</td><td data-label="原始資料"><div class="pdf-links"><a class="pdf-link" href="${encodeURI(p.pdf)}#page=${p.page}" data-pdf-program-id="${p.id}" data-pdf-year="116" target="_blank" rel="noopener noreferrer">116 PDF ↗</a>${prevLink}</div></td></tr>`;
   }
 
   function chart(id, labels, values) {
@@ -89,6 +89,33 @@
     if (dialog.close) dialog.close(); else dialog.removeAttribute('open');
   }
 
+  let documentReturnFocus;
+  function closeDocument() {
+    const dialog = $('document-dialog');
+    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+    else dialog.removeAttribute('open');
+    $('document-frame').removeAttribute('src');
+    if (documentReturnFocus?.isConnected) documentReturnFocus.focus();
+  }
+
+  function openDocument(link) {
+    const dialog = $('document-dialog');
+    if (dialog.open) return;
+    const p = link.dataset.pdfProgramId && data.programs.find(program => program.id === link.dataset.pdfProgramId);
+    const url = new URL(link.href);
+    const page = url.hash.match(/^#page=(\d+)/)?.[1];
+    const title = p ? `${p.school} ${p.name} ${link.dataset.pdfYear} 原始 PDF` : link.textContent.replace(/[↗↓]/g,'').trim();
+    documentReturnFocus = link;
+    $('document-title').textContent = title;
+    $('document-description').textContent = page && (p || url.origin === location.origin) ? `第 ${page} 頁` : url.hostname;
+    $('document-help').hidden = url.origin === location.origin;
+    $('document-frame').title = title;
+    $('document-original').href = link.href;
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open','');
+    $('document-frame').src = link.href;
+  }
+
   function exportCsv() {
     const headers = ['116校系','學校','學校代碼','116參採科目','115參採科目','年度比較','115志願代碼','115第一階段學測最低篩選標準','APCS最低級分','APCS加權成績',...subjects.map(s => `115${s}權重`),'116原始PDF','115原始PDF'];
     const quote = value => `"${String(value ?? '').replace(/"/g,'""')}"`;
@@ -112,5 +139,17 @@
   $('standards-close').addEventListener('click',closeStandard);
   $('standards-done').addEventListener('click',closeStandard);
   $('standards-dialog').addEventListener('click',e => {if(e.target===$('standards-dialog')) closeStandard();});
+  document.addEventListener('click',e => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const link = e.target.closest?.('a[target="_blank"]');
+    if (!link || link.hasAttribute('data-direct-open')) return;
+    const url = new URL(link.href);
+    if (!['http:','https:','file:'].includes(url.protocol)) return;
+    e.preventDefault();
+    openDocument(link);
+  });
+  $('document-close').addEventListener('click',closeDocument);
+  $('document-done').addEventListener('click',closeDocument);
+  $('document-dialog').addEventListener('cancel',e => {e.preventDefault();closeDocument();});
   render();
 })();
