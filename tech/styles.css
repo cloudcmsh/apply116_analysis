@@ -13,7 +13,7 @@
 @media(max-width:520px){.topbar nav a:last-child{display:none}.hero h1{font-size:37px}.hero-metrics{gap:20px}.section-heading{align-items:flex-start}.section-heading .text-button{margin-top:20px;white-space:nowrap}.results-head{display:block}.results-actions{margin-top:14px}.results-actions select{flex:1}.subject-options{grid-template-columns:1fr 1fr}.chart-card{padding:20px}.dialog-head,.dialog-content{padding-left:17px;padding-right:17px}.dialog-head h2{font-size:18px}.dialog-foot{padding-left:17px;padding-right:17px}}
 
 .weights-table th:nth-child(n+2),.weights-table td:nth-child(n+2){text-align:right}
-.weights-table th:nth-child(3),.weights-table td:nth-child(3){background:#f7fafd}
+.weights-table th:nth-child(2),.weights-table td:nth-child(2){background:#f7fafd}
 .weight-pending{color:#8195a9;font-weight:700;white-space:nowrap}
 .weights-pending-note{margin:9px 0 0;color:#627d95;font-size:11px;line-height:1.6}
 

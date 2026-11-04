@@ -76,7 +76,7 @@
     $('standards-fields').innerHTML = fields.map(([label,value]) => `<div><dt>${escape(label)}</dt><dd class="${value && value !== '--' ? 'score-value' : 'score-missing'}">${escape(value || '--')}</dd></div>`).join('');
     $('standards-weights').innerHTML = subjects.map(subject => {
       const weight = s.weights[subject];
-      return `<tr><th scope="row">${subject}</th><td class="${weight === null ? 'weight-unused' : 'weight-used'}">${weight === null ? '—' : `× ${Number(weight).toFixed(2)}`}</td><td class="weight-pending">待公布</td></tr>`;
+      return `<tr><th scope="row">${subject}</th><td class="weight-pending">待公布</td><td class="${weight === null ? 'weight-unused' : 'weight-used'}">${weight === null ? '—' : `× ${Number(weight).toFixed(2)}`}</td></tr>`;
     }).join('');
     $('standards-source').href = `data/115_第一階段最低篩選標準.pdf#page=${s.page}`;
     $('standards-detail').href = `data/115_more_rule.pdf#page=${s.detailPage}`;
