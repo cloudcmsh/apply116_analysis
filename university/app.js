@@ -85,11 +85,23 @@
     return `<section class="standard-section score-section"><h4>${title}</h4><table class="criteria-table score-table"><thead><tr><th scope="col">116 年</th><th scope="col">115 年</th></tr></thead><tbody><tr><td class="current-year${changed ? ' changed-year' : ''}">${escapeHtml(currentText)}</td><td>${escapeHtml(previousText)}</td></tr></tbody></table></section>`;
   }
 
+  function tieBreakSection(currentItems, previousItems, hasPrevious) {
+    const list = (items, compareWith) => items && items.length
+      ? `<ol class="tie-break-list">${items.map((item, index) => `<li${compareWith && item !== compareWith[index] ? ' class="changed-year"' : ''}>${escapeHtml(item)}</li>`).join('')}</ol>`
+      : '<p class="tie-break-empty">—</p>';
+    return `<section class="tie-break-section"><h3>甄選總成績同分參酌順序</h3><div class="tie-break-grid"><div class="tie-break-year"><h4>116 年</h4>${list(currentItems, hasPrevious ? previousItems : null)}</div><div class="tie-break-year"><h4>115 年</h4>${list(previousItems)}</div></div></section>`;
+  }
+
+  function examDateSection(date) {
+    const text = date && date !== '—' ? date : '簡章未列日期';
+    return `<section class="exam-date-section"><h3>116 指定項目甄試日期</h3><p>${escapeHtml(text)}</p></section>`;
+  }
+
   function ensureSchoolDetails116() {
     if (window.schoolDetails116) return Promise.resolve();
     if (!schoolDetails116Promise) schoolDetails116Promise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'data/school_116.js?v=20261103a';
+      script.src = 'data/school_116.js?v=20261105b';
       script.onload = resolve;
       script.onerror = () => { schoolDetails116Promise = null; reject(new Error('116 校系分則資料載入失敗')); };
       document.head.appendChild(script);
@@ -101,7 +113,7 @@
     if (window.schoolDetails115) return Promise.resolve();
     if (!schoolDetailsPromise) schoolDetailsPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'data/school_115.js?v=20261102b';
+      script.src = 'data/school_115.js?v=20261105a';
       script.onload = resolve;
       script.onerror = () => { schoolDetailsPromise = null; reject(new Error('校系分則資料載入失敗')); };
       document.head.appendChild(script);
@@ -144,7 +156,8 @@
       const passes = row ? passTable(labels.passes, row.passes) : '';
       const combination = current.combination ? `<p class="standard-combination">116 學測科目組合：${escapeHtml(current.combination)}</p>` : '';
       const extra = row ? `<div class="standard-extra"><strong>115 同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div>` : '';
-      return `<article class="standard-record">${rows.length > 1 ? `<h3>115 原表第 ${index + 1} 列</h3>` : ''}${details}<div class="standard-grid">${passes}<section class="first-stage" aria-labelledby="first-stage-${program.code}-${index}"><h3 id="first-stage-${program.code}-${index}">第一階段</h3><div class="criteria-grid">${criteriaTable('檢定標準', labels.checks, row ? row.checks : [], current.checks, Boolean(row))}${criteriaTable('篩選倍率', labels.ratios, row ? row.ratios : [], current.ratios, Boolean(row))}</div>${combination}</section></div><section class="second-stage" aria-labelledby="second-stage-${program.code}-${index}"><h3 id="second-stage-${program.code}-${index}">第二階段</h3><div class="score-grid">${scoreTable('學測成績採計方式', previous && previous.scoreWeights, current.scoreWeights, Boolean(previous))}${scoreTable('學測佔甄選總成績比例', previous && previous.gsatPercentage, current.gsatPercentage, Boolean(previous))}</div></section>${extra}</article>`;
+      const tieBreak = tieBreakSection(current.tieBreakOrder, previous && previous.tieBreakOrder, Boolean(previous));
+      return `<article class="standard-record">${rows.length > 1 ? `<h3>115 原表第 ${index + 1} 列</h3>` : ''}${details}<div class="standard-grid">${passes}<section class="first-stage" aria-labelledby="first-stage-${program.code}-${index}"><h3 id="first-stage-${program.code}-${index}">第一階段</h3><div class="criteria-grid">${criteriaTable('檢定標準', labels.checks, row ? row.checks : [], current.checks, Boolean(row))}${criteriaTable('篩選倍率', labels.ratios, row ? row.ratios : [], current.ratios, Boolean(row))}</div>${combination}</section></div><section class="second-stage" aria-labelledby="second-stage-${program.code}-${index}"><h3 id="second-stage-${program.code}-${index}">第二階段</h3><div class="score-grid">${scoreTable('學測成績採計方式', previous && previous.scoreWeights, current.scoreWeights, Boolean(previous))}${scoreTable('學測佔甄選總成績比例', previous && previous.gsatPercentage, current.gsatPercentage, Boolean(previous))}</div></section>${tieBreak}${examDateSection(current.examDate)}${extra}</article>`;
     }).join('');
     showStandardsDialog();
   }
@@ -234,7 +247,7 @@
     const dialog = $('compare-dialog');
     dialog.style.setProperty('--compare-table-width', `${140 + 196 * programs.length}px`);
     dialog.style.setProperty('--compare-mobile-table-width', `${115 + 190 * programs.length}px`);
-    $('compare-table').innerHTML = `<thead><tr><th scope="col">比較項目</th>${programs.map(program => `<th scope="col"><span class="compare-school">${escapeHtml(program.school)}</span><span class="compare-name">${escapeHtml(program.name)}</span><button type="button" data-compare-remove="${program.code}" aria-label="移除比較：${escapeHtml(program.school)} ${escapeHtml(program.name)}">移除</button></th>`).join('')}</tr></thead><tbody>${row('學校', values(program => program.school))}${row('116 參採科目', values(program => subjectCell(program, false)), true)}${row('115 參採科目', values(program => subjectCell(program, true)), true)}${row('兩年科目比較', values(changeLabel))}${row('115 最低通過分數', values(program => compareStandards(program, 'passes')), false, 'compare-pass-row')}${row('115 檢定標準', values(program => compareStandards(program, 'checks')))}${row('116 檢定標準', values(program => compareStandards116(program, 'checks')))}${row('115 篩選倍率', values(program => compareStandards(program, 'ratios')))}${row('116 篩選倍率', values(program => compareStandards116(program, 'ratios')))}</tbody>`;
+    $('compare-table').innerHTML = `<thead><tr><th scope="col">比較項目</th>${programs.map(program => `<th scope="col"><span class="compare-school">${escapeHtml(program.school)}</span><span class="compare-name">${escapeHtml(program.name)}</span><button type="button" data-compare-remove="${program.code}" aria-label="移除比較：${escapeHtml(program.school)} ${escapeHtml(program.name)}">移除</button></th>`).join('')}</tr></thead><tbody>${row('學校', values(program => program.school))}${row('116 參採科目', values(program => subjectCell(program, false)), true)}${row('115 參採科目', values(program => subjectCell(program, true)), true)}${row('兩年科目比較', values(changeLabel))}${row('115 最低通過分數', values(program => compareStandards(program, 'passes')), false, 'compare-pass-row')}${row('115 檢定標準', values(program => compareStandards(program, 'checks')))}${row('116 檢定標準', values(program => compareStandards116(program, 'checks')))}${row('115 篩選倍率', values(program => compareStandards(program, 'ratios')))}${row('116 篩選倍率', values(program => compareStandards116(program, 'ratios')))}${row('116 指定項目甄試日期', values(program => { const date = (window.schoolDetails116 || {})[program.code]?.examDate; return date && date !== '—' ? date : '簡章未列日期'; }))}</tbody>`;
     scroll.scrollLeft = scrollLeft;
     $('compare-description').textContent = `已選 ${programs.length} 個校系，最多可選 ${maxCompare} 個`;
   }
@@ -304,7 +317,7 @@
     button.textContent = '載入中…';
     Promise.allSettled([ensureStandards(), ensureSchoolDetails116()]).then(results => {
       if (compareCodes.size < 2) return;
-      $('compare-help').textContent = results.some(result => result.status === 'rejected') ? '部分篩選標準暫時無法載入；仍可比較兩年的參採科目。' : '左右捲動可查看所有已選校系。115、116 年檢定與倍率均依官方校系分則整理；115 最低通過分數依官方篩選標準原圖核對。';
+      $('compare-help').textContent = results.some(result => result.status === 'rejected') ? '部分篩選標準暫時無法載入；仍可比較兩年的參採科目。' : '左右捲動可查看所有已選校系。115、116 年檢定與倍率及 116 年指定項目甄試日期依官方校系分則整理；115 最低通過分數依官方篩選標準原圖核對。';
       renderCompareTable();
       const dialog = $('compare-dialog');
       if (typeof dialog.showModal === 'function') dialog.showModal();

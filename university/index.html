@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="比較 116 與 115 學年度大學申請入學校系學測科目參採情形。">
   <title>116／115 申請入學參採科目比較</title>
-  <link rel="stylesheet" href="styles.css?v=20261103f">
+  <link rel="stylesheet" href="styles.css?v=20261105b">
   <link rel="stylesheet" href="../portal.css">
   <script src="data/programs.js?v=20261103f" defer></script>
   <script src="data/telc_116.js?v=20261103a" defer></script>
-  <script src="app.js?v=20261104a" defer></script>
+  <script src="app.js?v=20261105b" defer></script>
 </head>
 <body>
   <nav class="portal-switcher" aria-label="申請入學網站切換"><div class="portal-switcher-inner"><a class="portal-switcher-home" href="../index.html">← 查詢入口</a><div class="portal-switcher-links"><a href="index.html" aria-current="page">一般大學</a><a href="../tech/index.html">科技校院四技</a></div></div></nav>
@@ -84,13 +84,13 @@
   <div id="compare-tray" class="compare-tray" hidden aria-live="polite"><div><strong id="compare-count">已選 0 / 10 個校系</strong><span id="compare-hint">再選 1 個校系即可比較</span></div><div class="compare-tray-actions"><button id="compare-clear" type="button">清除已選</button><button id="compare-open" type="button" disabled>開始比較</button></div></div>
   <dialog id="compare-dialog" class="compare-dialog" aria-labelledby="compare-title">
     <div class="compare-dialog-head"><div><h2 id="compare-title">校系比較</h2><p id="compare-description"></p></div><button id="compare-close" type="button" aria-label="關閉校系比較">關閉 ×</button></div>
-    <p id="compare-help" class="compare-help">左右捲動可查看所有已選校系。115、116 年檢定與倍率均依官方校系分則整理；115 最低通過分數依官方篩選標準原圖核對。</p>
+    <p id="compare-help" class="compare-help">左右捲動可查看所有已選校系。115、116 年檢定與倍率及 116 年指定項目甄試日期依官方校系分則整理；115 最低通過分數依官方篩選標準原圖核對。</p>
     <div id="compare-scroll" class="compare-scroll"><table id="compare-table"></table></div>
     <div class="compare-dialog-foot"><button id="compare-done" type="button">關閉比較</button></div>
   </dialog>
   <dialog id="standards-dialog" class="standards-dialog" aria-labelledby="standards-title">
     <div class="standards-dialog-head"><div><span class="kicker">115 / 116 SCREENING STANDARD</span><h2 id="standards-title"></h2><p id="standards-description"></p></div><button id="standards-close" class="standards-close" type="button" aria-label="關閉篩選標準">×</button></div>
-    <p class="standards-help">115 最低通過分數依官方篩選標準原圖核對；兩年的檢定、倍率及第二階段學測採計方式與占比依各年官方校系分則整理。116 年與 115 年不同的數值以紅字標示。116 年最低通過分數尚未產生。若有疑義，請核對官方原始資料。</p>
+    <p class="standards-help">115 最低通過分數依官方篩選標準原圖核對；兩年的檢定、倍率、第二階段學測採計方式與占比，以及同分參酌順序依各年官方校系分則整理。116 年指定項目甄試日期依 116 年官方簡章整理。116 年與 115 年不同的數值以紅字標示。116 年最低通過分數尚未產生。若有疑義，請核對官方原始資料。</p>
     <div id="standards-content"></div>
     <div class="standards-dialog-foot"><div class="standard-source-links"><a id="standards-source" target="_blank" rel="noopener noreferrer">115 篩選標準原表 ↗</a><a id="school-detail-source" target="_blank" rel="noopener noreferrer">115 校系分則 ↗</a><a id="school-detail-source-116" target="_blank" rel="noopener noreferrer">116 校系分則 ↗</a></div><button id="standards-done" class="outline-button" type="button">關閉</button></div>
   </dialog>
