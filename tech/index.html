@@ -61,9 +61,9 @@
     <section class="about wrap" id="about">
       <div><span class="kicker">SOURCE & METHOD</span><h2>資料與計算方式</h2></div>
       <div class="about-copy">
-        <p>資料取自資料夾內 116、115 學年度科技校院日間部四年制申請入學「各系（組）、學程參採學測科目一覽表」、「115 學年度第一階段最低篩選標準」、115 年招生簡章與校系分則詳細檔，以及 115 年校系資料工作簿。本站直接讀取 PDF 表格的科目勾選與標準欄位，並依志願代碼連結工作簿中的六科權重。</p>
-        <p>年度參採科目比較以學校代碼和正規化後的校系名稱配對；依 115 年詳細簡章確認，長庚科大「嘉義分部／嘉義校區」視為同一校系。最低標準獨立對照原表中的同校同名校系。未配對不代表新設校系，也可能是更名、改組或同名多筆。115 最低標準是當年第一階段篩選通過者的最低學測加權平均成績，並非 116 年門檻或最終錄取分數。APCS 超額篩選欄位另在詳細資料中顯示。116 年權重待正式簡章公布後補入。所有招生條件仍以當年度正式簡章與官方公告為準。</p>
-        <div class="source-links"><a href="data/programs.json" download>下載完整資料 JSON ↓</a><a href="data/115_第一階段最低篩選標準.pdf" target="_blank" rel="noopener noreferrer">115 最低標準原表 ↗</a><a href="data/115_more_rule.pdf" target="_blank" rel="noopener noreferrer">115 校系分則詳細檔 ↗</a></div>
+        <p>資料取自資料夾內 116、115 學年度科技校院日間部四年制申請入學「各系（組）、學程參採學測科目一覽表」、「115 學年度第一階段最低篩選標準」、115 年招生簡章與校系分則詳細檔，以及 115 年校系資料工作簿。本站直接讀取 PDF 表格的科目勾選、最低標準、第二階段複試項目與甄試比率，並依志願代碼連結工作簿中的六科權重。</p>
+        <p>年度參採科目比較以學校代碼和正規化後的校系名稱配對；依 115 年詳細簡章確認，長庚科大「嘉義分部／嘉義校區」視為同一校系。最低標準獨立對照原表中的同校同名校系。未配對不代表新設校系，也可能是更名、改組或同名多筆。115 最低標準是當年第一階段篩選通過者的最低學測加權平均成績，並非 116 年門檻或最終錄取分數。APCS 超額篩選欄位另在詳細資料中顯示。116 年權重與第二階段資料待正式簡章公布後補入。所有招生條件仍以當年度正式簡章與官方公告為準。</p>
+        <div class="source-links"><a href="data/programs.json" download>下載完整資料 JSON ↓</a><a href="data/second_stage_115.json" download>下載 115 第二階段資料 JSON ↓</a><a href="data/115_第一階段最低篩選標準.pdf" target="_blank" rel="noopener noreferrer">115 最低標準原表 ↗</a><a href="data/115_more_rule.pdf" target="_blank" rel="noopener noreferrer">115 校系分則詳細檔 ↗</a></div>
       </div>
     </section>
   </main>
@@ -79,6 +79,15 @@
         <p class="weights-formula">115 學測成績加權平均＝（各科級分 × 權重的總和）÷（15 × 權重總和）× 100，四捨五入至小數第 2 位。</p>
         <p class="weights-note">115 欄位的「—」表示不採計該科，計算時權重視為 0；採計但未應考的科目，該科級分視為 0。請依各校正式簡章確認採計方式。</p>
       </section>
+      <section class="second-stage-section" aria-labelledby="second-stage-title">
+        <h3 id="second-stage-title">第二階段</h3>
+        <p class="second-stage-note">以下項目依 115 年簡章列出；116 年簡章尚未公告，資料待公布。</p>
+        <h4>複試評分項目</h4>
+        <table class="second-stage-table review-table"><thead><tr><th scope="col">116 年</th><th scope="col">115 年</th></tr></thead><tbody><tr><td class="second-stage-pending">待公布</td><td id="second-stage-review"></td></tr></tbody></table>
+        <h4>甄試全部評分項目佔總成績比率</h4>
+        <table class="second-stage-table ratio-table"><thead><tr><th scope="col">評分項目（115）</th><th scope="col">116 比率</th><th scope="col">115 比率</th></tr></thead><tbody id="second-stage-ratios"></tbody></table>
+        <p class="second-stage-note">115 比率的「—」表示該項目列於甄試全部評分項目，但不佔總成績比率。</p>
+      </section>
     </div>
     <div class="dialog-foot"><div class="dialog-links"><a id="standards-source" target="_blank" rel="noopener noreferrer">開啟最低標準 PDF ↗</a><a id="standards-detail" target="_blank" rel="noopener noreferrer">115 校系詳細簡章 ↗</a></div><button id="standards-done" class="outline-button" type="button">關閉</button></div>
   </dialog>
@@ -92,6 +101,6 @@
     <iframe id="document-frame" title="PDF 文件預覽"></iframe>
     <div class="document-foot"><a id="document-original" data-direct-open target="_blank" rel="noopener noreferrer">在新分頁開啟 PDF ↗</a><button id="document-done" type="button">關閉並返回網站</button></div>
   </dialog>
-  <footer><div class="wrap footer-inner"><span>116 四技申請入學資料觀察室</span><span>資料來源：科技校院四技申請入學公告 PDF · 整理日期 2026.11.04</span></div></footer>
+  <footer><div class="wrap footer-inner"><span>116 四技申請入學資料觀察室</span><span>資料來源：科技校院四技申請入學公告 PDF · 整理日期 2026.11.05</span></div></footer>
 </body>
 </html>

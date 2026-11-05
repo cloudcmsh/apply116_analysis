@@ -38,7 +38,7 @@
   function rowHtml(p) {
     const change = p.change === 'changed' ? '<span class="change-pill changed">科目有變動</span>' : p.change === 'unmatched' ? '<span class="change-pill unmatched-pill">待核對</span>' : '';
     const old = p.previous ? tags(p.previous.subjects, [], p.removed) : '<span class="unmatched">無對應紀錄</span>';
-    const score = p.standard ? `<button class="standard-button" type="button" data-id="${p.id}"><strong>${escape(p.standard.score)}</strong><small>標準與權重 ↗</small></button>` : '<span class="score-empty">—</span>';
+    const score = p.standard ? `<button class="standard-button" type="button" data-id="${p.id}"><strong>${escape(p.standard.score)}</strong><small>標準與甄試 ↗</small></button>` : '<span class="score-empty">—</span>';
     const prevLink = p.previous ? `<a class="pdf-link" href="${encodeURI(p.previous.pdf)}#page=${p.previous.page}" data-pdf-program-id="${p.id}" data-pdf-year="115" target="_blank" rel="noopener noreferrer">115 PDF ↗</a>` : '';
     return `<tr><td data-label="116 校系"><span class="program-name">${escape(p.name)}</span><span class="program-code">${p.schoolCode} · 第 ${Number(p.id.split('-')[1])} 筆${p.standard ? ` · 115 代碼 ${p.standard.code}` : ''}</span>${change}</td><td data-label="學校"><span class="school-name">${escape(p.school)}</span></td><td data-label="116 參採">${tags(p.subjects,p.added)}</td><td data-label="115 參採">${old}</td><td data-label="115 最低標準">${score}</td><td data-label="原始資料"><div class="pdf-links"><a class="pdf-link" href="${encodeURI(p.pdf)}#page=${p.page}" data-pdf-program-id="${p.id}" data-pdf-year="116" target="_blank" rel="noopener noreferrer">116 PDF ↗</a>${prevLink}</div></td></tr>`;
   }
@@ -78,6 +78,8 @@
       const weight = s.weights[subject];
       return `<tr><th scope="row">${subject}</th><td class="weight-pending">待公布</td><td class="${weight === null ? 'weight-unused' : 'weight-used'}">${weight === null ? '—' : `× ${Number(weight).toFixed(2)}`}</td></tr>`;
     }).join('');
+    $('second-stage-review').innerHTML = `<ul>${s.secondStage.reviewItems.map(item => `<li>${escape(item)}</li>`).join('')}</ul>`;
+    $('second-stage-ratios').innerHTML = s.secondStage.scoringItems.map(({item,ratio}) => `<tr><th scope="row">${escape(item)}</th><td class="second-stage-pending">待公布</td><td class="${ratio ? 'second-stage-ratio' : 'second-stage-empty'}">${escape(ratio || '—')}</td></tr>`).join('');
     $('standards-source').href = `data/115_第一階段最低篩選標準.pdf#page=${s.page}`;
     $('standards-detail').href = `data/115_more_rule.pdf#page=${s.detailPage}`;
     const dialog = $('standards-dialog');
@@ -196,9 +198,9 @@
   }
 
   function exportCsv() {
-    const headers = ['116校系','學校','學校代碼','116參採科目','115參採科目','年度比較','115志願代碼','115第一階段學測最低篩選標準','APCS最低級分','APCS加權成績',...subjects.map(s => `115${s}權重`),'116原始PDF','115原始PDF'];
+    const headers = ['116校系','學校','學校代碼','116參採科目','115參採科目','年度比較','115志願代碼','115第一階段學測最低篩選標準','APCS最低級分','APCS加權成績',...subjects.map(s => `115${s}權重`),'116複試評分項目','115複試評分項目','116甄試評分比率','115甄試評分比率','116原始PDF','115原始PDF'];
     const quote = value => `"${String(value ?? '').replace(/"/g,'""')}"`;
-    const lines = [headers, ...current.map(p => [p.name,p.school,p.schoolCode,p.subjects.join('、'),p.previous?.subjects.join('、') || '',p.change,p.standard?.code || '',p.standard?.score || '',p.standard?.apcsLevel || '',p.standard?.apcsScore || '',...subjects.map(s => p.standard?.weights[s] ?? ''),p.pdf,p.previous?.pdf || ''])];
+    const lines = [headers, ...current.map(p => [p.name,p.school,p.schoolCode,p.subjects.join('、'),p.previous?.subjects.join('、') || '',p.change,p.standard?.code || '',p.standard?.score || '',p.standard?.apcsLevel || '',p.standard?.apcsScore || '',...subjects.map(s => p.standard?.weights[s] ?? ''),'',p.standard?.secondStage.reviewItems.join('、') || '','',p.standard?.secondStage.scoringItems.map(({item,ratio}) => `${item}：${ratio || '—'}`).join('；') || '',p.pdf,p.previous?.pdf || ''])];
     const blob = new Blob(['\ufeff'+lines.map(row => row.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a'); link.href = url; link.download = '116_115_四技申請入學參採科目比較.csv'; link.click();
