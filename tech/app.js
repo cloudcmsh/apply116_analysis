@@ -80,7 +80,7 @@
     }).join('');
     $('second-stage-review').innerHTML = `<ul>${s.secondStage.reviewItems.map(item => `<li>${escape(item)}</li>`).join('')}</ul>`;
     $('second-stage-ratios').innerHTML = s.secondStage.scoringItems.map(({item,ratio}) => `<tr><th scope="row">${escape(item)}</th><td class="second-stage-pending">待公布</td><td class="${ratio ? 'second-stage-ratio' : 'second-stage-empty'}">${escape(ratio || '—')}</td></tr>`).join('');
-    $('tie-break-rows').innerHTML = s.secondStage.scoringItems.map(({item,tieBreakOrder}) => `<tr><th scope="row">${tieBreakOrder}</th><td class="tie-break-pending">待公布</td><td>${escape(item)}</td></tr>`).join('');
+    $('tie-break-rows').innerHTML = s.secondStage.scoringItems.map(({item,tieBreakOrder}, index) => `<tr><th scope="row">${escape(tieBreakOrder ?? index + 1)}</th><td class="tie-break-pending">待公布</td><td>${escape(item)}</td></tr>`).join('');
     $('standards-source').href = `data/115_第一階段最低篩選標準.pdf#page=${s.page}`;
     $('standards-detail').href = `data/115_more_rule.pdf#page=${s.detailPage}`;
     const dialog = $('standards-dialog');
@@ -230,7 +230,7 @@
   function exportCsv() {
     const headers = ['116校系','學校','學校代碼','116參採科目','115參採科目','年度比較','115志願代碼','115第一階段學測最低篩選標準','APCS最低級分','APCS加權成績',...subjects.map(s => `115${s}權重`),'116複試評分項目','115複試評分項目','116甄試評分比率','115甄試評分比率','116同分參酌順序','115同分參酌順序','116原始PDF','115原始PDF'];
     const quote = value => `"${String(value ?? '').replace(/"/g,'""')}"`;
-    const lines = [headers, ...current.map(p => [p.name,p.school,p.schoolCode,p.subjects.join('、'),p.previous?.subjects.join('、') || '',p.change,p.standard?.code || '',p.standard?.score || '',p.standard?.apcsLevel || '',p.standard?.apcsScore || '',...subjects.map(s => p.standard?.weights[s] ?? ''),'',p.standard?.secondStage.reviewItems.join('、') || '','',p.standard?.secondStage.scoringItems.map(({item,ratio}) => `${item}：${ratio || '—'}`).join('；') || '','',p.standard?.secondStage.scoringItems.map(({item,tieBreakOrder}) => `${tieBreakOrder}. ${item}`).join('；') || '',p.pdf,p.previous?.pdf || ''])];
+    const lines = [headers, ...current.map(p => [p.name,p.school,p.schoolCode,p.subjects.join('、'),p.previous?.subjects.join('、') || '',p.change,p.standard?.code || '',p.standard?.score || '',p.standard?.apcsLevel || '',p.standard?.apcsScore || '',...subjects.map(s => p.standard?.weights[s] ?? ''),'',p.standard?.secondStage.reviewItems.join('、') || '','',p.standard?.secondStage.scoringItems.map(({item,ratio}) => `${item}：${ratio || '—'}`).join('；') || '','',p.standard?.secondStage.scoringItems.map(({item,tieBreakOrder}, index) => `${tieBreakOrder ?? index + 1}. ${item}`).join('；') || '',p.pdf,p.previous?.pdf || ''])];
     const blob = new Blob(['\ufeff'+lines.map(row => row.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a'); link.href = url; link.download = '116_115_四技申請入學參採科目比較.csv'; link.click();
