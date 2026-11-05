@@ -101,7 +101,7 @@
     if (window.schoolDetails116) return Promise.resolve();
     if (!schoolDetails116Promise) schoolDetails116Promise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'data/school_116.js?v=20261105b';
+      script.src = 'data/school_116.js?v=777102485bc3';
       script.onload = resolve;
       script.onerror = () => { schoolDetails116Promise = null; reject(new Error('116 校系分則資料載入失敗')); };
       document.head.appendChild(script);
@@ -113,7 +113,7 @@
     if (window.schoolDetails115) return Promise.resolve();
     if (!schoolDetailsPromise) schoolDetailsPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'data/school_115.js?v=20261105a';
+      script.src = 'data/school_115.js?v=26a1138ff0f1';
       script.onload = resolve;
       script.onerror = () => { schoolDetailsPromise = null; reject(new Error('校系分則資料載入失敗')); };
       document.head.appendChild(script);
@@ -125,7 +125,7 @@
     if (window.STANDARDS_115) return Promise.resolve();
     if (!standardsPromise) standardsPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'data/standards.js?v=20261103a';
+      script.src = 'data/standards.js?v=d18f686b6149';
       script.onload = () => {
         standardData = window.STANDARDS_115 || { layouts: {}, programs: {} };
         standards = standardData.programs || {};
