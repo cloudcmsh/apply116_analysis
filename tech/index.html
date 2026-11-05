@@ -85,6 +85,10 @@
   <dialog id="document-dialog" class="document-dialog" aria-labelledby="document-title">
     <div class="document-head"><div><h2 id="document-title"></h2><p id="document-description"></p></div><button id="document-close" type="button" aria-label="關閉檢視視窗並返回網站">關閉 ×</button></div>
     <p id="document-help" class="document-help" hidden>若官方網站限制站內顯示，請使用下方的「在新分頁開啟 PDF」。</p>
+    <div id="document-pdf-viewer" class="document-pdf-viewer" hidden>
+      <div class="document-page-controls" aria-label="PDF 翻頁"><button id="document-page-prev" type="button">上一頁</button><span id="document-page-status" role="status" aria-live="polite">載入中…</span><button id="document-page-next" type="button">下一頁</button></div>
+      <div class="document-page"><canvas id="document-page-canvas" aria-label="PDF 頁面"></canvas></div>
+    </div>
     <iframe id="document-frame" title="PDF 文件預覽"></iframe>
     <div class="document-foot"><a id="document-original" data-direct-open target="_blank" rel="noopener noreferrer">在新分頁開啟 PDF ↗</a><button id="document-done" type="button">關閉並返回網站</button></div>
   </dialog>

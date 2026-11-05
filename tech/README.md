@@ -12,7 +12,7 @@
 
 ## 本機檢視
 
-在這個資料夾執行 `python -m http.server 8000`，再開啟 `http://localhost:8000/`。首頁資料由本機 `data/programs.js` 載入；「115 簡章計分規則」連結至招生委員會網站。
+在這個資料夾執行 `python -m http.server 8000`，再開啟 `http://localhost:8000/`。首頁資料由本機 `data/programs.js` 載入；「115 簡章計分規則」與「115 校系詳細簡章」使用 `data/` 內的 PDF。站內檢視器使用隨網站提供的 PDF.js（授權條款見 `vendor/LICENSE.pdfjs.txt`），可在手機顯示指定頁碼。
 
 ## 資料範圍
 

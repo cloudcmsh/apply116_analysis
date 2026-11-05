@@ -90,10 +90,85 @@
   }
 
   let documentReturnFocus;
+  let pdfDocument;
+  let pdfRenderTask;
+  let pdfGeneration = 0;
+  let pdfPageNumber = 1;
+  let pdfPageRequest = 0;
+  let pdfjsPromise;
+  let pdfFileUrl;
+
+  async function showPdfPage(pageNumber, generation = pdfGeneration) {
+    if (!pdfDocument || generation !== pdfGeneration) return;
+    const request = ++pdfPageRequest;
+    pdfPageNumber = Math.max(1, Math.min(pdfDocument.numPages, pageNumber));
+    $('document-description').textContent = `第 ${pdfPageNumber} 頁`;
+    $('document-original').href = `${pdfFileUrl}#page=${pdfPageNumber}`;
+    $('document-page-status').textContent = `第 ${pdfPageNumber}／${pdfDocument.numPages} 頁`;
+    $('document-page-prev').disabled = pdfPageNumber === 1;
+    $('document-page-next').disabled = pdfPageNumber === pdfDocument.numPages;
+    if (pdfRenderTask) {
+      pdfRenderTask.cancel();
+      try { await pdfRenderTask.promise; } catch (_) { /* Cancelled render. */ }
+    }
+    try {
+      const page = await pdfDocument.getPage(pdfPageNumber);
+      if (generation !== pdfGeneration || request !== pdfPageRequest) return;
+      const canvas = $('document-page-canvas');
+      const availableWidth = Math.max(200, $('document-pdf-viewer').clientWidth - 32);
+      const base = page.getViewport({scale: 1});
+      const scale = Math.min(2, availableWidth / base.width);
+      const viewport = page.getViewport({scale});
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(viewport.width * pixelRatio);
+      canvas.height = Math.round(viewport.height * pixelRatio);
+      canvas.style.width = `${Math.round(viewport.width)}px`;
+      canvas.style.height = `${Math.round(viewport.height)}px`;
+      pdfRenderTask = page.render({canvasContext: canvas.getContext('2d'), viewport, transform: pixelRatio === 1 ? null : [pixelRatio, 0, 0, pixelRatio, 0, 0]});
+      await pdfRenderTask.promise;
+      if (generation === pdfGeneration && request === pdfPageRequest) $('document-page-canvas').setAttribute('aria-label', `PDF 第 ${pdfPageNumber} 頁`);
+    } catch (error) {
+      if (error?.name !== 'RenderingCancelledException' && generation === pdfGeneration) {
+        $('document-page-status').textContent = '頁面載入失敗，請使用下方連結開啟 PDF';
+        console.error('PDF page rendering failed', error);
+      }
+    }
+  }
+
+  async function loadLocalPdf(url, pageNumber) {
+    const generation = ++pdfGeneration;
+    pdfFileUrl = url.href.split('#')[0];
+    $('document-page-status').textContent = 'PDF 載入中…';
+    $('document-page-prev').disabled = true;
+    $('document-page-next').disabled = true;
+    try {
+      pdfjsPromise ||= import('./vendor/pdf.mjs');
+      const pdfjs = await pdfjsPromise;
+      if (generation !== pdfGeneration) return;
+      pdfjs.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdf.worker.mjs', location.href).href;
+      const task = pdfjs.getDocument({url: pdfFileUrl});
+      const document = await task.promise;
+      if (generation !== pdfGeneration) { document.destroy(); return; }
+      pdfDocument = document;
+      await showPdfPage(pageNumber, generation);
+    } catch (error) {
+      if (generation === pdfGeneration) {
+        $('document-page-status').textContent = 'PDF 載入失敗，請使用下方連結開啟 PDF';
+        console.error('PDF loading failed', error);
+      }
+    }
+  }
+
   function closeDocument() {
     const dialog = $('document-dialog');
     if (typeof dialog.close === 'function' && dialog.open) dialog.close();
     else dialog.removeAttribute('open');
+    pdfGeneration++;
+    pdfPageRequest++;
+    pdfRenderTask?.cancel();
+    pdfRenderTask = undefined;
+    pdfDocument?.destroy();
+    pdfDocument = undefined;
     $('document-frame').removeAttribute('src');
     if (documentReturnFocus?.isConnected) documentReturnFocus.focus();
   }
@@ -103,17 +178,21 @@
     if (dialog.open) return;
     const p = link.dataset.pdfProgramId && data.programs.find(program => program.id === link.dataset.pdfProgramId);
     const url = new URL(link.href);
-    const page = url.hash.match(/^#page=(\d+)/)?.[1];
+    const page = Number(url.hash.match(/^#page=(\d+)/)?.[1] || 1);
+    const localPdf = url.origin === location.origin && url.pathname.toLowerCase().endsWith('.pdf');
     const title = p ? `${p.school} ${p.name} ${link.dataset.pdfYear} 原始 PDF` : link.textContent.replace(/[↗↓]/g,'').trim();
     documentReturnFocus = link;
     $('document-title').textContent = title;
-    $('document-description').textContent = page && (p || url.origin === location.origin) ? `第 ${page} 頁` : url.hostname;
+    $('document-description').textContent = localPdf || p ? `第 ${page} 頁` : url.hostname;
     $('document-help').hidden = url.origin === location.origin;
     $('document-frame').title = title;
     $('document-original').href = link.href;
+    $('document-pdf-viewer').hidden = !localPdf;
+    $('document-frame').hidden = localPdf;
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open','');
-    $('document-frame').src = link.href;
+    if (localPdf) loadLocalPdf(url, page);
+    else $('document-frame').src = link.href;
   }
 
   function exportCsv() {
@@ -151,5 +230,7 @@
   $('document-close').addEventListener('click',closeDocument);
   $('document-done').addEventListener('click',closeDocument);
   $('document-dialog').addEventListener('cancel',e => {e.preventDefault();closeDocument();});
+  $('document-page-prev').addEventListener('click',() => showPdfPage(pdfPageNumber - 1));
+  $('document-page-next').addEventListener('click',() => showPdfPage(pdfPageNumber + 1));
   render();
 })();
