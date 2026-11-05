@@ -61,7 +61,7 @@
     <section class="about wrap" id="about">
       <div><span class="kicker">SOURCE & METHOD</span><h2>資料與計算方式</h2></div>
       <div class="about-copy">
-        <p>資料取自資料夾內 116、115 學年度科技校院日間部四年制申請入學「各系（組）、學程參採學測科目一覽表」、「115 學年度第一階段最低篩選標準」、115 年招生簡章與校系分則詳細檔，以及 115 年校系資料工作簿。本站直接讀取 PDF 表格的科目勾選、最低標準、第二階段複試項目與甄試比率，並依志願代碼連結工作簿中的六科權重。</p>
+        <p>資料取自資料夾內 116、115 學年度科技校院日間部四年制申請入學「各系（組）、學程參採學測科目一覽表」、「115 學年度第一階段最低篩選標準」、115 年招生簡章與校系分則詳細檔，以及 115 年校系資料工作簿。本站直接讀取 PDF 表格的科目勾選、最低標準、第二階段複試項目、甄試比率與同分參酌順序，並依志願代碼連結工作簿中的六科權重。</p>
         <p>年度參採科目比較以學校代碼和正規化後的校系名稱配對；依 115 年詳細簡章確認，長庚科大「嘉義分部／嘉義校區」視為同一校系。最低標準獨立對照原表中的同校同名校系。未配對不代表新設校系，也可能是更名、改組或同名多筆。115 最低標準是當年第一階段篩選通過者的最低學測加權平均成績，並非 116 年門檻或最終錄取分數。APCS 超額篩選欄位另在詳細資料中顯示。116 年權重與第二階段資料待正式簡章公布後補入。所有招生條件仍以當年度正式簡章與官方公告為準。</p>
         <div class="source-links"><a href="data/programs.json" download>下載完整資料 JSON ↓</a><a href="data/second_stage_115.json" download>下載 115 第二階段資料 JSON ↓</a><a href="data/115_第一階段最低篩選標準.pdf" target="_blank" rel="noopener noreferrer">115 最低標準原表 ↗</a><a href="data/115_more_rule.pdf" target="_blank" rel="noopener noreferrer">115 校系分則詳細檔 ↗</a></div>
       </div>
@@ -88,6 +88,11 @@
         <table class="second-stage-table ratio-table"><thead><tr><th scope="col">評分項目（115）</th><th scope="col">116 比率</th><th scope="col">115 比率</th></tr></thead><tbody id="second-stage-ratios"></tbody></table>
         <p class="second-stage-note">115 比率的「—」表示該項目列於甄試全部評分項目，但不佔總成績比率。</p>
       </section>
+      <section class="tie-break-section" aria-labelledby="tie-break-title">
+        <h3 id="tie-break-title">同分參酌順序</h3>
+        <p>依 115 年校系詳細簡章列出；116 年簡章尚未公告，資料待公布。</p>
+        <table class="tie-break-table"><thead><tr><th scope="col">順序</th><th scope="col">116 年</th><th scope="col">115 年評分項目</th></tr></thead><tbody id="tie-break-rows"></tbody></table>
+      </section>
     </div>
     <div class="dialog-foot"><div class="dialog-links"><a id="standards-source" target="_blank" rel="noopener noreferrer">開啟最低標準 PDF ↗</a><a id="standards-detail" target="_blank" rel="noopener noreferrer">115 校系詳細簡章 ↗</a></div><button id="standards-done" class="outline-button" type="button">關閉</button></div>
   </dialog>
@@ -95,7 +100,7 @@
     <div class="document-head"><div><h2 id="document-title"></h2><p id="document-description"></p></div><button id="document-close" type="button" aria-label="關閉檢視視窗並返回網站">關閉 ×</button></div>
     <p id="document-help" class="document-help" hidden>若官方網站限制站內顯示，請使用下方的「在新分頁開啟 PDF」。</p>
     <div id="document-pdf-viewer" class="document-pdf-viewer" hidden>
-      <div class="document-page-controls" aria-label="PDF 翻頁"><button id="document-page-prev" type="button">上一頁</button><span id="document-page-status" role="status" aria-live="polite">載入中…</span><button id="document-page-next" type="button">下一頁</button></div>
+      <div class="document-page-controls" aria-label="PDF 翻頁"><button id="document-page-prev" type="button">上一頁</button><span id="document-page-status" role="status" aria-live="polite">載入中…</span><button id="document-page-next" type="button">下一頁</button><button id="document-page-retry" type="button" hidden>重試載入</button></div>
       <div class="document-page"><canvas id="document-page-canvas" aria-label="PDF 頁面"></canvas></div>
     </div>
     <iframe id="document-frame" title="PDF 文件預覽"></iframe>

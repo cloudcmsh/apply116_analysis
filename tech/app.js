@@ -80,6 +80,7 @@
     }).join('');
     $('second-stage-review').innerHTML = `<ul>${s.secondStage.reviewItems.map(item => `<li>${escape(item)}</li>`).join('')}</ul>`;
     $('second-stage-ratios').innerHTML = s.secondStage.scoringItems.map(({item,ratio}) => `<tr><th scope="row">${escape(item)}</th><td class="second-stage-pending">待公布</td><td class="${ratio ? 'second-stage-ratio' : 'second-stage-empty'}">${escape(ratio || '—')}</td></tr>`).join('');
+    $('tie-break-rows').innerHTML = s.secondStage.scoringItems.map(({item,tieBreakOrder}) => `<tr><th scope="row">${tieBreakOrder}</th><td class="tie-break-pending">待公布</td><td>${escape(item)}</td></tr>`).join('');
     $('standards-source').href = `data/115_第一階段最低篩選標準.pdf#page=${s.page}`;
     $('standards-detail').href = `data/115_more_rule.pdf#page=${s.detailPage}`;
     const dialog = $('standards-dialog');
@@ -94,11 +95,20 @@
   let documentReturnFocus;
   let pdfDocument;
   let pdfRenderTask;
+  let pdfLoadingTask;
   let pdfGeneration = 0;
   let pdfPageNumber = 1;
   let pdfPageRequest = 0;
   let pdfjsPromise;
   let pdfFileUrl;
+
+  function showPdfError(error) {
+    $('document-page-status').textContent = 'PDF 載入失敗';
+    $('document-page-prev').disabled = true;
+    $('document-page-next').disabled = true;
+    $('document-page-retry').hidden = false;
+    console.error('PDF preview failed', error);
+  }
 
   async function showPdfPage(pageNumber, generation = pdfGeneration) {
     if (!pdfDocument || generation !== pdfGeneration) return;
@@ -130,35 +140,54 @@
       await pdfRenderTask.promise;
       if (generation === pdfGeneration && request === pdfPageRequest) $('document-page-canvas').setAttribute('aria-label', `PDF 第 ${pdfPageNumber} 頁`);
     } catch (error) {
-      if (error?.name !== 'RenderingCancelledException' && generation === pdfGeneration) {
-        $('document-page-status').textContent = '頁面載入失敗，請使用下方連結開啟 PDF';
-        console.error('PDF page rendering failed', error);
-      }
+      if (error?.name !== 'RenderingCancelledException' && generation === pdfGeneration) showPdfError(error);
     }
   }
 
   async function loadLocalPdf(url, pageNumber) {
     const generation = ++pdfGeneration;
     pdfFileUrl = url.href.split('#')[0];
+    pdfPageNumber = pageNumber;
+    pdfRenderTask?.cancel();
+    pdfRenderTask = undefined;
+    const previousTask = pdfLoadingTask;
+    pdfLoadingTask = undefined;
+    if (previousTask) previousTask.destroy().catch(() => {});
+    pdfDocument = undefined;
     $('document-page-status').textContent = 'PDF 載入中…';
     $('document-page-prev').disabled = true;
     $('document-page-next').disabled = true;
-    try {
-      pdfjsPromise ||= import('./vendor/pdf.mjs');
-      const pdfjs = await pdfjsPromise;
-      if (generation !== pdfGeneration) return;
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdf.worker.mjs', location.href).href;
-      const task = pdfjs.getDocument({url: pdfFileUrl});
-      const document = await task.promise;
-      if (generation !== pdfGeneration) { document.destroy(); return; }
-      pdfDocument = document;
-      await showPdfPage(pageNumber, generation);
-    } catch (error) {
-      if (generation === pdfGeneration) {
-        $('document-page-status').textContent = 'PDF 載入失敗，請使用下方連結開啟 PDF';
-        console.error('PDF loading failed', error);
+    $('document-page-retry').hidden = true;
+    $('document-page-canvas').removeAttribute('aria-label');
+    let lastError;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let task;
+      try {
+        pdfjsPromise ||= import('./vendor/pdf.mjs').catch(error => { pdfjsPromise = undefined; throw error; });
+        const pdfjs = await pdfjsPromise;
+        if (generation !== pdfGeneration) return;
+        pdfjs.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdf.worker.mjs', location.href).href;
+        task = pdfjs.getDocument({url: pdfFileUrl, disableRange: true, disableStream: true});
+        pdfLoadingTask = task;
+        const document = await task.promise;
+        if (generation !== pdfGeneration) { task.destroy().catch(() => {}); return; }
+        pdfDocument = document;
+        await showPdfPage(pageNumber, generation);
+        return;
+      } catch (error) {
+        if (generation !== pdfGeneration) return;
+        lastError = error;
+        if (task) {
+          try { await task.destroy(); } catch (_) { /* Failed request. */ }
+          if (pdfLoadingTask === task) pdfLoadingTask = undefined;
+        }
+        if (attempt === 0) {
+          $('document-page-status').textContent = '正在重新載入 PDF…';
+          await new Promise(resolve => setTimeout(resolve, 700));
+        }
       }
     }
+    if (generation === pdfGeneration) showPdfError(lastError);
   }
 
   function closeDocument() {
@@ -169,7 +198,8 @@
     pdfPageRequest++;
     pdfRenderTask?.cancel();
     pdfRenderTask = undefined;
-    pdfDocument?.destroy();
+    if (pdfLoadingTask) pdfLoadingTask.destroy().catch(() => {});
+    pdfLoadingTask = undefined;
     pdfDocument = undefined;
     $('document-frame').removeAttribute('src');
     if (documentReturnFocus?.isConnected) documentReturnFocus.focus();
@@ -198,9 +228,9 @@
   }
 
   function exportCsv() {
-    const headers = ['116校系','學校','學校代碼','116參採科目','115參採科目','年度比較','115志願代碼','115第一階段學測最低篩選標準','APCS最低級分','APCS加權成績',...subjects.map(s => `115${s}權重`),'116複試評分項目','115複試評分項目','116甄試評分比率','115甄試評分比率','116原始PDF','115原始PDF'];
+    const headers = ['116校系','學校','學校代碼','116參採科目','115參採科目','年度比較','115志願代碼','115第一階段學測最低篩選標準','APCS最低級分','APCS加權成績',...subjects.map(s => `115${s}權重`),'116複試評分項目','115複試評分項目','116甄試評分比率','115甄試評分比率','116同分參酌順序','115同分參酌順序','116原始PDF','115原始PDF'];
     const quote = value => `"${String(value ?? '').replace(/"/g,'""')}"`;
-    const lines = [headers, ...current.map(p => [p.name,p.school,p.schoolCode,p.subjects.join('、'),p.previous?.subjects.join('、') || '',p.change,p.standard?.code || '',p.standard?.score || '',p.standard?.apcsLevel || '',p.standard?.apcsScore || '',...subjects.map(s => p.standard?.weights[s] ?? ''),'',p.standard?.secondStage.reviewItems.join('、') || '','',p.standard?.secondStage.scoringItems.map(({item,ratio}) => `${item}：${ratio || '—'}`).join('；') || '',p.pdf,p.previous?.pdf || ''])];
+    const lines = [headers, ...current.map(p => [p.name,p.school,p.schoolCode,p.subjects.join('、'),p.previous?.subjects.join('、') || '',p.change,p.standard?.code || '',p.standard?.score || '',p.standard?.apcsLevel || '',p.standard?.apcsScore || '',...subjects.map(s => p.standard?.weights[s] ?? ''),'',p.standard?.secondStage.reviewItems.join('、') || '','',p.standard?.secondStage.scoringItems.map(({item,ratio}) => `${item}：${ratio || '—'}`).join('；') || '','',p.standard?.secondStage.scoringItems.map(({item,tieBreakOrder}) => `${tieBreakOrder}. ${item}`).join('；') || '',p.pdf,p.previous?.pdf || ''])];
     const blob = new Blob(['\ufeff'+lines.map(row => row.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a'); link.href = url; link.download = '116_115_四技申請入學參採科目比較.csv'; link.click();
@@ -234,5 +264,6 @@
   $('document-dialog').addEventListener('cancel',e => {e.preventDefault();closeDocument();});
   $('document-page-prev').addEventListener('click',() => showPdfPage(pdfPageNumber - 1));
   $('document-page-next').addEventListener('click',() => showPdfPage(pdfPageNumber + 1));
+  $('document-page-retry').addEventListener('click',() => loadLocalPdf(new URL($('document-original').href), pdfPageNumber));
   render();
 })();

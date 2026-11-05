@@ -33,6 +33,16 @@
 .second-stage-table .second-stage-pending{background:#f7fbfa;color:#075f68;font-weight:900;white-space:nowrap}
 .second-stage-ratio{color:#58718a;font-weight:800}
 .second-stage-empty{color:#98a8b7}
+.tie-break-section{margin-top:14px;padding:15px 17px 17px;border:1px solid #ebc4ce;border-radius:9px;background:#fff3f6}
+.tie-break-section h3{margin:0 0 7px;color:#a44860;font-size:15px;font-weight:800}
+.tie-break-section p{margin:0 0 11px;color:#836b74;font-size:11px;line-height:1.6}
+.tie-break-table{width:100%;min-width:0;table-layout:fixed;border:1px solid #edd7dc;background:#fff}
+.tie-break-table th,.tie-break-table td{padding:8px 9px;border-top:1px solid #edd7dc;font-size:11px;line-height:1.5;vertical-align:top;overflow-wrap:anywhere}
+.tie-break-table thead th{border-top:0;background:#fbe5ea;color:#815464}
+.tie-break-table th:first-child{width:15%;padding-left:9px;text-align:center}
+.tie-break-table th:nth-child(2),.tie-break-table td:nth-child(2){width:23%}
+.tie-break-table tbody th{color:#a44860;font-weight:900}
+.tie-break-pending{background:#fff9fa;color:#a44860;font-weight:800;white-space:nowrap}
 
 .filter-resource{margin-top:19px;padding-top:14px;border-top:1px solid var(--line)}
 .filter-resource a{display:inline-flex;align-items:center;color:var(--blue);font-size:11px;font-weight:900;line-height:1.5;text-underline-offset:3px}
